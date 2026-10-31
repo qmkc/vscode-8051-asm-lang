@@ -23,6 +23,11 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      - uses: actions/cache@v4
+        with:
+          path: .vscode-test
+          key: vscode-test-${{ runner.os }}-${{ hashFiles('.vscode-test.mjs') }}
+
       # pnpm test runs the "pretest" lifecycle script first (compile-tests,
       # compile, lint), then the actual @vscode/test-electron suite.
       - run: xvfb-run -a pnpm test
