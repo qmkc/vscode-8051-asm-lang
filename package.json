@@ -5,6 +5,7 @@
   "version": "0.0.1",
   "license": "MIT",
   "publisher": "qmkc",
+  "icon": "icon.png",
   "repository": {
     "type": "git",
     "url": "https://github.com/qmkc/vscode-8051-asm-lang.git"
@@ -25,7 +26,9 @@
     "vscode": "^1.144.0"
   },
   "categories": [
-    "Programming Languages"
+    "Programming Languages",
+    "Linters",
+    "Formatters"
   ],
   "scripts": {
     "vscode:prepublish": "pnpm run package",
