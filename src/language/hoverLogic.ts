@@ -1,4 +1,4 @@
-import { SymbolKind } from './symbolIndex';
+import { SymbolDef, SymbolKind } from './symbolIndex';
 import { Encoding, OpcodeEntry, OperandType } from './opcodeTable';
 import { LocaleCatalog } from './locales/types';
 
@@ -190,7 +190,7 @@ export function renderHoverMarkdown(
     const phrases = match.encoding.operands.map((type, i) =>
       catalog.describeOperand(match.operandTexts[i], type),
     );
-    lines.push(prose.explain(phrases), '');
+    lines.push(prose.explain(phrases, match.encoding.operands), '');
     lines.push(catalog.ui.opcodeTableHeader);
     lines.push(
       `| ${match.encoding.opcode} | ${catalog.ui.byteUnit(match.encoding.bytes)} | ${match.encoding.cycles} | ${prose.flags} |`,
@@ -218,6 +218,30 @@ export function renderHoverMarkdown(
         `| ${e.opcode} | ${catalog.ui.byteUnit(e.bytes)} | ${e.cycles} | ${prose.flags} |`,
       );
     }
+  }
+
+  return lines.join('\n');
+}
+
+/** Renders the hover body for a bare reference to a label/EQU/SET/BIT/data/macro symbol: its kind, value or parameter list (if any), defining line, and doc comment (the `;` comment block directly above its definition), if any. */
+export function renderSymbolHoverMarkdown(
+  catalog: LocaleCatalog,
+  def: SymbolDef,
+): string {
+  const lines: string[] = [];
+  lines.push(
+    `### \`${def.name}\` — ${catalog.ui.symbolKindLabel(def.kind)}`,
+    '',
+  );
+
+  if (def.detail) {
+    lines.push(`\`${def.detail}\``, '');
+  }
+
+  lines.push(catalog.ui.definedAtLine(def.line + 1));
+
+  if (def.doc) {
+    lines.push('', '---', '', def.doc);
   }
 
   return lines.join('\n');

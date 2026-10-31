@@ -34,16 +34,18 @@
   "scripts": {
     "vscode:prepublish": "pnpm run package",
     "build:grammar": "node scripts/build-grammar.js",
+    "build:locales": "node scripts/build-locales.js",
     "compile": "pnpm run build:grammar && pnpm run check-types && pnpm run lint && node esbuild.js",
     "watch": "npm-run-all -p watch:*",
     "watch:esbuild": "node esbuild.js --watch",
     "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
     "watch:grammar": "node scripts/watch-grammar.js",
+    "watch:locales": "node scripts/watch-locales.js",
     "package": "pnpm run build:grammar && pnpm run check-types && pnpm run lint && node esbuild.js --production",
-    "compile-tests": "tsc -p . --outDir out",
+    "compile-tests": "pnpm run build:locales && tsc -p . --outDir out",
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "pnpm run compile-tests && pnpm run compile && pnpm run lint",
-    "check-types": "tsc --noEmit",
+    "check-types": "pnpm run build:locales && tsc --noEmit",
     "lint": "eslint src",
     "test": "vscode-test",
     "vsce:package": "vsce package",
@@ -72,6 +74,12 @@
         "language": "a51",
         "scopeName": "source.a51",
         "path": "./syntaxes/a51.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "a51",
+        "path": "./snippets/a51.code-snippets"
       }
     ],
     "configuration": {

@@ -1,0 +1,95 @@
+{
+  "Program skeleton": {
+    "prefix": "org",
+    "body": [
+      "\tORG\t0000H",
+      "\tLJMP\t${1:MAIN}",
+      "",
+      "\tORG\t0030H",
+      "${1:MAIN}:",
+      "\t$0",
+      "\tSJMP\t$1",
+      "",
+      "\tEND",
+    ],
+    "description": "Minimal reset-vector + main-loop program skeleton.",
+  },
+
+  "Interrupt vector table": {
+    "prefix": "vectors",
+    "body": [
+      "\tORG\t0000H",
+      "\tLJMP\t${1:MAIN}",
+      "\tORG\t0003H\t; External interrupt 0",
+      "\tLJMP\t${2:INT0_ISR}",
+      "\tORG\t000BH\t; Timer 0",
+      "\tLJMP\t${3:TIMER0_ISR}",
+      "\tORG\t0013H\t; External interrupt 1",
+      "\tLJMP\t${4:INT1_ISR}",
+      "\tORG\t001BH\t; Timer 1",
+      "\tLJMP\t${5:TIMER1_ISR}",
+      "\tORG\t0023H\t; Serial port",
+      "\tLJMP\t${6:SERIAL_ISR}",
+      "",
+      "\tORG\t0030H",
+      "${1:MAIN}:",
+      "\t$0",
+    ],
+    "description": "Standard 8051 reset + interrupt vector table, jumping past 002BH into main code.",
+  },
+
+  "Interrupt service routine": {
+    "prefix": "isr",
+    "body": [
+      "${1:NAME}:",
+      "\tPUSH\tACC",
+      "\tPUSH\tPSW",
+      "\t$0",
+      "\tPOP\tPSW",
+      "\tPOP\tACC",
+      "\tRETI",
+    ],
+    "description": "ISR skeleton saving/restoring ACC and PSW, ending in RETI.",
+  },
+
+  "Subroutine": {
+    "prefix": "sub",
+    "body": ["${1:NAME}:", "\t$0", "\tRET"],
+    "description": "Subroutine skeleton ending in RET.",
+  },
+
+  "MACRO definition": {
+    "prefix": "macro",
+    "body": ["${1:NAME}\tMACRO\t${2:ARG}", "\t$0", "\tENDM"],
+    "description": "MACRO/ENDM block.",
+  },
+
+  "Delay loop": {
+    "prefix": "delay",
+    "body": [
+      "${1:DELAY}:",
+      "\tMOV\t${2:R7},#${3:0FFH}",
+      "${4:D1}:\tDJNZ\t$2,$4",
+      "\tRET",
+    ],
+    "description": "Busy-wait delay subroutine using DJNZ.",
+  },
+
+  "EQU constant": {
+    "prefix": "equ",
+    "body": "${1:NAME}\tEQU\t${2:value}",
+    "description": "Colon-less EQU constant definition.",
+  },
+
+  "BIT definition": {
+    "prefix": "bit",
+    "body": "${1:NAME}\tBIT\t${2:P1.0}",
+    "description": "Named bit-addressable definition.",
+  },
+
+  "CJNE": {
+    "prefix": "cjne",
+    "body": "CJNE\t${1:A},#${2:data},${3:LABEL}",
+    "description": "Compare and jump if not equal.",
+  },
+}

@@ -5,6 +5,7 @@ import {
   MACRO_DEF_RE,
   MNEMONIC_RE,
   findEndLineIndex,
+  isBannerComment,
   splitCodeAndComment,
 } from '../language/parsing';
 
@@ -60,11 +61,6 @@ function applyCase(token: string, style: CaseStyle): string {
     return token.toLowerCase();
   }
   return token;
-}
-
-function isBannerComment(comment: string): boolean {
-  const rest = comment.slice(1).trim();
-  return rest.length > 0 && /^[;=\-_*#~]+$/.test(rest);
 }
 
 function formatComment(comment: string, options: FormatOptions): string {

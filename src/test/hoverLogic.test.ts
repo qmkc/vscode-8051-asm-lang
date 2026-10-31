@@ -1,12 +1,14 @@
 import * as assert from 'assert';
+
 import {
   matchEncoding,
   renderHoverMarkdown,
+  renderSymbolHoverMarkdown,
   splitTopLevelOperands,
 } from '../language/hoverLogic';
 import { lookupOpcodeEntry } from '../language/opcodeTable';
 import { getCatalog, resolveLocale } from '../language/locales';
-import { SymbolKind } from '../language/symbolIndex';
+import { SymbolDef, SymbolKind } from '../language/symbolIndex';
 
 function noSymbols(): SymbolKind | undefined {
   return undefined;
@@ -91,7 +93,7 @@ suite('hoverLogic', () => {
       zhTw.describeOperand(match.operandTexts[i], t),
     );
     assert.strictEqual(
-      zhTw.instructions.MOV.explain(phrases),
+      zhTw.instructions.MOV.explain(phrases, match.encoding.operands),
       '把 累加器 A 的值複製到 @R0 所指向的內部 RAM（間接定址）。',
     );
 
@@ -99,7 +101,7 @@ suite('hoverLogic', () => {
       en.describeOperand(match.operandTexts[i], t),
     );
     assert.strictEqual(
-      en.instructions.MOV.explain(enPhrases),
+      en.instructions.MOV.explain(enPhrases, match.encoding.operands),
       'Copy the value of accumulator A into internal RAM pointed to by @R0 (indirect addressing).',
     );
   });
@@ -161,7 +163,10 @@ suite('hoverLogic', () => {
     const phrases = match!.encoding.operands.map((t, i) =>
       zhTw.describeOperand(match!.operandTexts[i], t),
     );
-    const explanation = zhTw.instructions.CJNE.explain(phrases);
+    const explanation = zhTw.instructions.CJNE.explain(
+      phrases,
+      match!.encoding.operands,
+    );
     assert.ok(explanation.includes('LOOP'));
   });
 
@@ -306,5 +311,49 @@ suite('hoverLogic', () => {
         );
       }
     }
+  });
+});
+
+suite('hoverLogic: renderSymbolHoverMarkdown', () => {
+  function def(overrides: Partial<SymbolDef>): SymbolDef {
+    return {
+      name: 'LED',
+      kind: 'bit',
+      line: 7,
+      character: 0,
+      length: 3,
+      ...overrides,
+    };
+  }
+
+  test('shows the kind, the value/detail, and the defined-at line', () => {
+    const md = renderSymbolHoverMarkdown(en, def({ detail: 'P1.0' }));
+    assert.ok(md.includes('`LED` — bit'));
+    assert.ok(md.includes('`P1.0`'));
+    assert.ok(md.includes('Defined at line 8.'));
+  });
+
+  test('appends the doc comment under a separator when present', () => {
+    const md = renderSymbolHoverMarkdown(
+      en,
+      def({ detail: 'P1.0', doc: 'Status LED, active high.' }),
+    );
+    assert.ok(md.includes('---'));
+    assert.ok(md.includes('Status LED, active high.'));
+  });
+
+  test('omits the detail line entirely for a label (no value)', () => {
+    const md = renderSymbolHoverMarkdown(
+      en,
+      def({ kind: 'label', detail: undefined }),
+    );
+    assert.ok(md.includes('`LED` — label'));
+    assert.ok(!md.includes('``'));
+  });
+
+  test('renders in zh-tw and zh-cn too', () => {
+    const d = def({ kind: 'macro', detail: 'N', doc: '延遲副程式' });
+    assert.ok(renderSymbolHoverMarkdown(zhTw, d).includes('巨集'));
+    assert.ok(renderSymbolHoverMarkdown(zhCn, d).includes('宏'));
   });
 });

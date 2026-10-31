@@ -11,4 +11,6 @@ const outPath = path.join(__dirname, '..', 'syntaxes', 'a51.tmLanguage.json');
 const doc = yaml.load(fs.readFileSync(srcPath, 'utf8'));
 fs.writeFileSync(outPath, JSON.stringify(doc, null, 2) + '\n');
 
-console.log(`Built ${path.relative(process.cwd(), outPath)} from ${path.relative(process.cwd(), srcPath)}`);
+console.log(
+  `Built ${path.relative(process.cwd(), outPath)} from ${path.relative(process.cwd(), srcPath)}`,
+);

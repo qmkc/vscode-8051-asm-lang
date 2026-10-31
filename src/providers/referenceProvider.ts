@@ -61,7 +61,8 @@ export class A51ReferenceProvider implements vscode.ReferenceProvider {
       (index.get(word) ?? []).map((def) => `${def.line}:${def.character}`),
     );
     return locations.filter(
-      (loc) => !defLines.has(`${loc.range.start.line}:${loc.range.start.character}`),
+      (loc) =>
+        !defLines.has(`${loc.range.start.line}:${loc.range.start.character}`),
     );
   }
 }

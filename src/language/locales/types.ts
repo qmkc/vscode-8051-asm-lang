@@ -1,12 +1,13 @@
 import { OperandType } from '../opcodeTable';
+import { SymbolKind } from '../symbolIndex';
 
 export type LocaleCode = 'en' | 'zh-tw' | 'zh-cn';
 
 export interface MnemonicProse {
   description: string;
   flags: string;
-  /** Builds the operand-specific explanation from each operand's resolved phrase, in encoding.operands order. */
-  explain: (ops: string[]) => string;
+  /** Builds the operand-specific explanation from each operand's resolved phrase and its OperandType, both in encoding.operands order. */
+  explain: (ops: string[], types: OperandType[]) => string;
 }
 
 export interface LocaleUi {
@@ -19,6 +20,8 @@ export interface LocaleUi {
   noneOperand: string;
   byteUnit: (bytes: number) => string;
   callPseudoInstruction: string;
+  symbolKindLabel: (kind: SymbolKind) => string;
+  definedAtLine: (line: number) => string;
 }
 
 export interface LocaleCatalog {

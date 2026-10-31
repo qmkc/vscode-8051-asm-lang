@@ -1,5 +1,6 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
+
 import { buildDiagnostics } from '../providers/diagnostics';
 
 /** A minimal fake TextDocument - buildDiagnostics only ever touches lineCount and lineAt(line).text. */

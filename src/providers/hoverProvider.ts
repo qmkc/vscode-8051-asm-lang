@@ -1,12 +1,14 @@
 import * as vscode from 'vscode';
-import { indexDocument, SymbolKind } from '../language/symbolIndex';
+
+import { indexDocument, SymbolDef, SymbolKind } from '../language/symbolIndex';
 import { lookupOpcodeEntry } from '../language/opcodeTable';
 import {
   matchEncoding,
   renderHoverMarkdown,
+  renderSymbolHoverMarkdown,
   splitTopLevelOperands,
 } from '../language/hoverLogic';
-import { getCatalog, resolveLocale } from '../language/locales';
+import { getCatalog, LocaleCatalog, resolveLocale } from '../language/locales';
 import {
   ASSIGN_DEF_RE,
   LABEL_DEF_RE,
@@ -51,6 +53,23 @@ export class A51HoverProvider implements vscode.HoverProvider {
       return undefined; // past a top-level END - A51 stops assembling there.
     }
 
+    const catalog = getCatalog(resolveLocale(vscode.env.language));
+    const index = indexDocument(document);
+
+    return (
+      this.tryMnemonicHover(document, position, wordRange, catalog, index) ??
+      this.trySymbolHover(document, wordRange, catalog, index)
+    );
+  }
+
+  /** Hover for the line's own mnemonic (built-in opcode reference, or the `CALL` pseudo-instruction note). */
+  private tryMnemonicHover(
+    document: vscode.TextDocument,
+    position: vscode.Position,
+    wordRange: vscode.Range,
+    catalog: LocaleCatalog,
+    index: Map<string, SymbolDef[]>,
+  ): vscode.Hover | undefined {
     const lineText = document.lineAt(position.line).text;
     const text = stripComment(lineText);
 
@@ -88,8 +107,6 @@ export class A51HoverProvider implements vscode.HoverProvider {
     const mnemonicUpper = mnemonicToken.toUpperCase();
     const operandText = (mnemonicMatch[2] ?? '').trim();
 
-    const catalog = getCatalog(resolveLocale(vscode.env.language));
-
     if (mnemonicUpper === 'CALL') {
       return new vscode.Hover(
         new vscode.MarkdownString(catalog.ui.callPseudoInstruction),
@@ -99,11 +116,10 @@ export class A51HoverProvider implements vscode.HoverProvider {
 
     const entry = lookupOpcodeEntry(mnemonicUpper);
     if (!entry) {
-      return undefined; // not a mnemonic we have opcode data for.
+      return undefined; // not a mnemonic we have opcode data for - maybe a macro call.
     }
 
     const operandTexts = splitTopLevelOperands(operandText);
-    const index = indexDocument(document);
     const symbolKindOf = (name: string): SymbolKind | undefined =>
       index.get(name.toUpperCase())?.[0]?.kind;
     const match = matchEncoding(entry, operandTexts, symbolKindOf);
@@ -119,5 +135,22 @@ export class A51HoverProvider implements vscode.HoverProvider {
     );
 
     return new vscode.Hover(new vscode.MarkdownString(markdown), mnemonicRange);
+  }
+
+  /** Hover for a bare reference to a label/EQU/SET/BIT/data/macro symbol - its kind, value/params, defining line, and the doc comment directly above its definition, if any. */
+  private trySymbolHover(
+    document: vscode.TextDocument,
+    wordRange: vscode.Range,
+    catalog: LocaleCatalog,
+    index: Map<string, SymbolDef[]>,
+  ): vscode.Hover | undefined {
+    const word = document.getText(wordRange);
+    const defs = index.get(word.toUpperCase());
+    if (!defs || defs.length === 0) {
+      return undefined;
+    }
+
+    const markdown = renderSymbolHoverMarkdown(catalog, defs[0]);
+    return new vscode.Hover(new vscode.MarkdownString(markdown), wordRange);
   }
 }

@@ -5,6 +5,7 @@ import {
   LABEL_DEF_RE,
   MACRO_DEF_RE,
   classifyAssignKind,
+  extractDocComment,
   findEndLineIndex,
   stripComment,
 } from './parsing';
@@ -17,6 +18,10 @@ export interface SymbolDef {
   line: number;
   character: number;
   length: number;
+  /** The value expression (EQU/SET/BIT/.../SEGMENT) or parameter list (MACRO) written after the keyword, if any. */
+  detail?: string;
+  /** The contiguous `;` comment block directly above this definition, if any - treated as its documentation. */
+  doc?: string;
 }
 
 /** Builds a symbol table for a single document (labels, EQU/SET/BIT constants, macros). A51 stops assembling at a top-level `END`, so anything after it is never indexed. */
@@ -51,6 +56,8 @@ export function indexDocument(
         line,
         character: macroMatch.index + macroMatch[0].indexOf(macroMatch[1]),
         length: macroMatch[1].length,
+        detail: macroMatch[3]?.trim() || undefined,
+        doc: extractDocComment(lines, line),
       });
       continue;
     }
@@ -63,6 +70,8 @@ export function indexDocument(
         line,
         character: assignMatch.index + assignMatch[0].indexOf(assignMatch[1]),
         length: assignMatch[1].length,
+        detail: assignMatch[3]?.trim() || undefined,
+        doc: extractDocComment(lines, line),
       });
       continue;
     }
@@ -75,6 +84,7 @@ export function indexDocument(
         line,
         character: text.indexOf(labelMatch[1]),
         length: labelMatch[1].length,
+        doc: extractDocComment(lines, line),
       });
     }
   }

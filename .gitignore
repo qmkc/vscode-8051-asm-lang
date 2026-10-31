@@ -5,3 +5,5 @@ node_modules
 *.vsix
 # Generated from syntaxes/a51.tmLanguage.yaml by `pnpm run build:grammar`.
 syntaxes/a51.tmLanguage.json
+# Generated from src/language/locales/data/*.yaml by `pnpm run build:locales`.
+src/language/locales/generated/

@@ -1,4 +1,5 @@
 import * as assert from 'assert';
+
 import { matchBlocks } from '../language/blockMatcher';
 
 suite('blockMatcher', () => {
@@ -8,9 +9,7 @@ suite('blockMatcher', () => {
       '  MOV A,#1',
       'ENDIF',
     ]);
-    assert.deepStrictEqual(matched, [
-      { kind: 'IF', startLine: 0, endLine: 2 },
-    ]);
+    assert.deepStrictEqual(matched, [{ kind: 'IF', startLine: 0, endLine: 2 }]);
     assert.strictEqual(unmatchedEnds.length, 0);
     assert.strictEqual(unclosed.length, 0);
   });
@@ -55,8 +54,6 @@ suite('blockMatcher', () => {
       'IF COND ; ENDIF mentioned here',
       'ENDIF',
     ]);
-    assert.deepStrictEqual(matched, [
-      { kind: 'IF', startLine: 0, endLine: 1 },
-    ]);
+    assert.deepStrictEqual(matched, [{ kind: 'IF', startLine: 0, endLine: 1 }]);
   });
 });

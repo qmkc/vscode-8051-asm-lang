@@ -76,6 +76,28 @@ export function stripComment(line: string): string {
   return splitCodeAndComment(line).code;
 }
 
+/** Whether a `;`-prefixed comment is a decorative banner/divider (e.g. ";;;;;;;;;;" or ";==== section ====") rather than prose worth treating as documentation. */
+export function isBannerComment(comment: string): boolean {
+  const rest = comment.slice(1).trim();
+  return rest.length > 0 && /^[;=\-_*#~]+$/.test(rest);
+}
+
+/** Collects the contiguous block of plain `;` comment lines directly above `defLine` (stopping at the first blank, code, or banner line) and joins them into doc text - or undefined if there is none. Mirrors a doc-comment convention: the comment block immediately preceding a definition documents it. */
+export function extractDocComment(
+  lines: string[],
+  defLine: number,
+): string | undefined {
+  const docLines: string[] = [];
+  for (let i = defLine - 1; i >= 0; i--) {
+    const trimmed = lines[i].trim();
+    if (!trimmed.startsWith(';') || isBannerComment(trimmed)) {
+      break;
+    }
+    docLines.unshift(trimmed.slice(1).replace(/^ /, ''));
+  }
+  return docLines.length > 0 ? docLines.join('\n') : undefined;
+}
+
 /** Replaces the contents of '...'/"..." string literals with spaces, preserving every character's position, so identifier scanning never matches text that is only inside a string literal. */
 export function maskStringLiterals(code: string): string {
   let result = '';

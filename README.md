@@ -49,6 +49,22 @@ This is a lightweight checker, not a full assembler: it won't catch every semant
 
 Hovering an instruction shows its opcode(s), byte length, cycle count, affected flags, and an addressing-mode-specific explanation, plus relevant notes (e.g. the `ACALL`/`AJMP` same-page restriction, relative-jump range, `@Ri` indirect RAM range, `RETI` vs. `RET`).
 
+Hovering any other reference to a label, `EQU`/`SET`/`BIT`/`DATA`-style constant, or macro — whether it's the definition itself or a use elsewhere, like a branch target — shows its kind, its value or parameter list, and where it's defined.
+
+#### Doc comments
+
+A `;` comment block written directly above a definition (no blank line in between) is treated as that symbol's documentation, and shown wherever it's hovered:
+
+```asm
+; Blinks the status LED once per second.
+; Call after SETUP.
+LOOP:   SETB    LED
+        LCALL   DELAY
+        SJMP    LOOP
+```
+
+Hovering `LOOP` here — on its definition or on the `SJMP LOOP` reference — shows that two-line comment as its documentation.
+
 ### IntelliSense
 
 - Auto-completion for instructions, directives, registers, and every symbol defined in the current file
@@ -56,6 +72,10 @@ Hovering an instruction shows its opcode(s), byte length, cycle count, affected 
 - Find All References
 - Outline / breadcrumbs (document symbols) for labels, constants, and macros
 - Code folding for `MACRO`/`IF`/`REPT`/`WHILE` blocks
+
+### Snippets
+
+Prefix-triggered snippets for common A51 patterns: `org` (reset-vector + main-loop skeleton), `vectors` (full interrupt vector table), `isr`, `sub`, `macro`, `delay`, `equ`, `bit`, and `cjne`.
 
 ### Localization
 
