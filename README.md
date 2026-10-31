@@ -2,6 +2,8 @@
 
 Syntax highlighting, formatting, diagnostics, hover reference, and IntelliSense for 8051 (MCS-51) assembly in the Keil A51 dialect, for `.asm` and `.a51` files.
 
+![Syntax highlighting and diagnostics](assets/screenshot.png)
+
 ## Features
 
 ### Syntax highlighting

@@ -12,7 +12,6 @@ scripts/**
 pnpm-lock.yaml
 pnpm-workspace.yaml
 esbuild.js
-image.png
 vsc-extension-quickstart.md
 syntaxes/*.yaml
 **/tsconfig.json
