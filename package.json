@@ -3,6 +3,7 @@
   "displayName": "8051 Assembly (A51)",
   "description": "Syntax highlighting, formatting, diagnostics, hover reference, and IntelliSense for 8051 (MCS-51) A51 assembly.",
   "version": "0.0.1",
+  "private": true,
   "license": "MIT",
   "publisher": "qmkc",
   "icon": "icon.png",
@@ -44,7 +45,9 @@
     "pretest": "pnpm run compile-tests && pnpm run compile && pnpm run lint",
     "check-types": "tsc --noEmit",
     "lint": "eslint src",
-    "test": "vscode-test"
+    "test": "vscode-test",
+    "vsce:package": "vsce package",
+    "vsce:publish": "vsce publish"
   },
   "activationEvents": [],
   "main": "./dist/extension.js",
@@ -161,6 +164,7 @@
     "@types/vscode": "^1.144.0",
     "@vscode/test-cli": "^0.0.15",
     "@vscode/test-electron": "^3.0.0",
+    "@vscode/vsce": "^4.1.0",
     "esbuild": "^0.28.1",
     "eslint": "^10.5.0",
     "js-yaml": "^5.5.0",

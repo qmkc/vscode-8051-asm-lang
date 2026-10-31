@@ -1,0 +1,54 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch: {}
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Check tag matches package.json version
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          tag_version="${GITHUB_REF_NAME#v}"
+          pkg_version="$(node -p "require('./package.json').version")"
+          if [ "$tag_version" != "$pkg_version" ]; then
+            echo "Tag v$tag_version does not match package.json version $pkg_version"
+            exit 1
+          fi
+
+      - run: xvfb-run -a pnpm test
+
+      - name: Package
+        run: pnpm exec vsce package --no-dependencies -o extension.vsix
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vsix
+          path: extension.vsix
+
+      # Only an actual version tag publishes to the Marketplace. A manual
+      # workflow_dispatch run still builds and uploads the .vsix artifact
+      # above, so the pipeline can be dry-run without risk of publishing.
+      - name: Publish to VS Code Marketplace
+        if: startsWith(github.ref, 'refs/tags/')
+        run: pnpm exec vsce publish --oidc --no-dependencies --packagePath extension.vsix
