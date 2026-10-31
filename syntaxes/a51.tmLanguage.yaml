@@ -1,0 +1,214 @@
+$schema: https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json
+name: 8051 Assembly (A51)
+scopeName: source.a51
+
+patterns:
+  - include: '#comment'
+  - include: '#string'
+  - include: '#string-double'
+  - include: '#after-end'
+  - include: '#preprocessor-dollar'
+  - include: '#preprocessor-define'
+  - include: '#preprocessor-hash'
+  - include: '#label-def'
+  - include: '#symbol-def'
+  - include: '#storage-def'
+  - include: '#macro-def'
+  - include: '#directive'
+  - include: '#jump-target-cjne'
+  - include: '#jump-target-bit'
+  - include: '#jump-target'
+  - include: '#instruction'
+  - include: '#bit-address'
+  - include: '#sfr-bit'
+  - include: '#sfr'
+  - include: '#register'
+  - include: '#number'
+  - include: '#operator-word'
+  - include: '#operator-immediate'
+  - include: '#operator-location-counter'
+  - include: '#operator'
+  - include: '#identifier'
+
+repository:
+  comment:
+    name: comment.line.semicolon.a51
+    match: ';.*$'
+
+  string:
+    name: string.quoted.single.a51
+    match: "'(?:''|[^'])*'"
+
+  string-double:
+    name: string.quoted.double.a51
+    match: '"(?:""|[^"])*"'
+
+  after-end:
+    begin: '(?i)(?<![A-Za-z0-9_.])(END)(?![A-Za-z0-9_.])'
+    beginCaptures:
+      '1':
+        name: keyword.control.directive.a51
+    end: '(?!)'
+    contentName: comment.block.after-end.a51
+
+  preprocessor-dollar:
+    match: '^\s*(\$)([A-Za-z_][A-Za-z0-9_]*)?(.*)$'
+    captures:
+      '1':
+        name: keyword.control.preprocessor.marker.a51
+      '2':
+        name: keyword.control.preprocessor.a51
+      '3':
+        name: string.unquoted.preprocessor-argument.a51
+
+  preprocessor-define:
+    match: '(?i)^\s*(#)(define)\s+([A-Za-z_][A-Za-z0-9_]*)'
+    captures:
+      '1':
+        name: keyword.control.preprocessor.marker.a51
+      '2':
+        name: keyword.control.preprocessor.a51
+      '3':
+        name: variable.other.constant.a51
+
+  preprocessor-hash:
+    match: '^\s*(#)([A-Za-z_][A-Za-z0-9_]*)?'
+    captures:
+      '1':
+        name: keyword.control.preprocessor.marker.a51
+      '2':
+        name: keyword.control.preprocessor.a51
+
+  label-def:
+    match: '^\s*([A-Za-z_?][A-Za-z0-9_?]*)\s*:'
+    captures:
+      '1':
+        name: entity.name.function.label.a51
+
+  symbol-def:
+    match: '(?i)^\s*([A-Za-z_?][A-Za-z0-9_?]*)\s+(EQU|SET)\b'
+    captures:
+      '1':
+        name: variable.other.constant.a51
+      '2':
+        name: keyword.control.directive.a51
+
+  storage-def:
+    match: '(?i)^\s*([A-Za-z_?][A-Za-z0-9_?]*)\s+(BIT|DATA|IDATA|XDATA|CODE|SEGMENT)\b'
+    captures:
+      '1':
+        name: variable.other.constant.a51
+      '2':
+        name: keyword.control.directive.a51
+
+  macro-def:
+    match: '(?i)^\s*([A-Za-z_?][A-Za-z0-9_?]*)\s+(MACRO)\b'
+    captures:
+      '1':
+        name: entity.name.function.macro.a51
+      '2':
+        name: keyword.control.directive.a51
+
+  directive:
+    match: '(?i)(?<![A-Za-z0-9_.])(ORG|END|EQU|SET|DATA|IDATA|XDATA|BIT|CODE|DBIT|DB|DW|DS|SEGMENT|RSEG|CSEG|DSEG|BSEG|ISEG|XSEG|PUBLIC|EXTRN|EXTERN|NAME|USING|PAGE|LOCAL|MACRO|ENDM|EXITM|IF|ELSEIF|ELSE|ENDIF|REPT|IRP|IRPC|WHILE|ENDW|AT|SFR|SBIT|INPAGE|INBLOCK|BITADDRESSABLE|UNIT|OVERLAYABLE)(?![A-Za-z0-9_.])'
+    name: keyword.control.directive.a51
+
+  instruction:
+    match: '(?i)(?<![A-Za-z0-9_.])(ACALL|ADDC|ADD|AJMP|ANL|CALL|CJNE|CLR|CPL|DA|DEC|DIV|DJNZ|INC|JBC|JB|JC|JMP|JNB|JNC|JNZ|JZ|LCALL|LJMP|MOVC|MOVX|MOV|MUL|NOP|ORL|POP|PUSH|RETI|RET|RLC|RL|RRC|RR|SETB|SJMP|SUBB|SWAP|XCHD|XCH|XRL)(?![A-Za-z0-9_.])'
+    name: keyword.other.instruction.a51
+
+  jump-target:
+    match: '(?i)(?<![A-Za-z0-9_.])(AJMP|ACALL|LJMP|LCALL|SJMP|JMP|CALL|JC|JNC|JZ|JNZ)(?![A-Za-z0-9_.])(\s+)([A-Za-z_?][A-Za-z0-9_?]*)(?![A-Za-z0-9_.?])'
+    captures:
+      '1':
+        name: keyword.other.instruction.a51
+      '3':
+        name: entity.name.function.label.a51
+
+  jump-target-bit:
+    match: '(?i)(?<![A-Za-z0-9_.])(JB|JNB|JBC|DJNZ)(?![A-Za-z0-9_.])(\s+)([^,;\n]+?)(\s*,\s*)([A-Za-z_?][A-Za-z0-9_?]*)(?![A-Za-z0-9_.?])'
+    captures:
+      '1':
+        name: keyword.other.instruction.a51
+      '3':
+        patterns:
+          - include: '#operand'
+      '5':
+        name: entity.name.function.label.a51
+
+  jump-target-cjne:
+    match: '(?i)(?<![A-Za-z0-9_.])(CJNE)(?![A-Za-z0-9_.])(\s+)([^,;\n]+?)(\s*,\s*)([^,;\n]+?)(\s*,\s*)([A-Za-z_?][A-Za-z0-9_?]*)(?![A-Za-z0-9_.?])'
+    captures:
+      '1':
+        name: keyword.other.instruction.a51
+      '3':
+        patterns:
+          - include: '#operand'
+      '5':
+        patterns:
+          - include: '#operand'
+      '7':
+        name: entity.name.function.label.a51
+
+  operand:
+    patterns:
+      - include: '#bit-address'
+      - include: '#sfr-bit'
+      - include: '#sfr'
+      - include: '#register'
+      - include: '#number'
+      - include: '#operator-word'
+      - include: '#operator-immediate'
+      - include: '#operator-location-counter'
+      - include: '#operator'
+      - include: '#identifier'
+
+  bit-address:
+    match: '(?i)(?<![A-Za-z0-9_.])([A-Za-z_][A-Za-z0-9_]*|[0-9][0-9A-Fa-f]*[HhBbOoQqDd]?)\.[0-7](?![A-Za-z0-9_.])'
+    name: constant.other.bitaddress.a51
+
+  sfr-bit:
+    match: '(?i)(?<![A-Za-z0-9_.])(EA|ES|ET0|ET1|EX0|EX1|PS|PT0|PT1|PX0|PX1|IT0|IE0|IT1|IE1|TR0|TF0|TR1|TF1|RI|TI|RB8|TB8|REN|SM0|SM1|SM2|CY|AC|F0|RS0|RS1|OV|RXD|TXD|INT0|INT1|T0|T1|WR|RD)(?![A-Za-z0-9_.])'
+    name: support.constant.sfr-bit.a51
+
+  sfr:
+    match: '(?i)(?<![A-Za-z0-9_.])(ACC|P0|P1|P2|P3|SP|DPL|DPH|PCON|TCON|TMOD|TL0|TL1|TH0|TH1|SCON|SBUF|IE|IP|PSW)(?![A-Za-z0-9_.])'
+    name: support.variable.sfr.a51
+
+  register:
+    match: '(?i)(?<![A-Za-z0-9_.@])(AB|A|B|C|@?R[0-7]|@A\+DPTR|@A\+PC|@DPTR|DPTR|PC)(?![A-Za-z0-9_])'
+    name: variable.language.register.a51
+
+  number:
+    patterns:
+      - name: constant.numeric.hex.a51
+        match: '\b[0-9][0-9A-Fa-f]*[Hh]\b'
+
+      - name: constant.numeric.binary.a51
+        match: '\b[01]+[Bb]\b'
+
+      - name: constant.numeric.octal.a51
+        match: '\b[0-7]+[OoQq]\b'
+
+      - name: constant.numeric.decimal.a51
+        match: '\b[0-9]+[Dd]?\b'
+
+  operator-word:
+    match: '(?i)(?<![A-Za-z0-9_.])(HIGH|LOW|MOD|SHL|SHR|AND|OR|XOR|NOT|EQ|NE|LT|LE|GT|GE)(?![A-Za-z0-9_])'
+    name: keyword.operator.word.a51
+
+  operator-immediate:
+    match: '#'
+    name: keyword.operator.immediate.a51
+
+  operator-location-counter:
+    match: '\$'
+    name: constant.language.location-counter.a51
+
+  operator:
+    match: '(@|\+|-|\*|/|=|<|>)'
+    name: keyword.operator.a51
+
+  identifier:
+    match: '(?<![A-Za-z0-9_?])[A-Za-z_?][A-Za-z0-9_?]*(?![A-Za-z0-9_?])'
+    name: variable.other.readwrite.a51

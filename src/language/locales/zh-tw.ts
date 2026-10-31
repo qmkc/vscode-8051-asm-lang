@@ -1,0 +1,345 @@
+import { OperandType } from '../opcodeTable';
+import { LocaleCatalog } from './types';
+
+function describeOperand(text: string, type: OperandType): string {
+  switch (type) {
+    case 'A':
+      return '累加器 A';
+    case 'B':
+      return '暫存器 B';
+    case 'C':
+      return '進位旗標 C';
+    case 'AB':
+      return 'A、B 暫存器對';
+    case 'DPTR':
+      return 'DPTR';
+    case '@DPTR':
+      return 'DPTR 所指向的外部資料記憶體';
+    case '@A+DPTR':
+      return 'A + DPTR 所指向的程式記憶體';
+    case '@A+PC':
+      return 'A + PC 所指向的程式記憶體';
+    case 'Rn':
+      return `工作暫存器 ${text.toUpperCase()}`;
+    case '@Ri':
+      return `${text.toUpperCase()} 所指向的內部 RAM（間接定址）`;
+    case 'bit':
+      return `位元 ${text}`;
+    case 'notbit':
+      return `位元 ${text.slice(1)} 的反相值`;
+    case 'data':
+      return `立即值 ${text}`;
+    case 'data16':
+      return `16 位元立即值 ${text}`;
+    case 'direct':
+    case 'rel':
+    default:
+      return text;
+  }
+}
+
+export const zhTw: LocaleCatalog = {
+  code: 'zh-tw',
+  describeOperand,
+  notes: {
+    atRi: 'R0/R1 間接定址 00H–7FH 存取一般內部 RAM；指向 80H–FFH 時，在有 256 bytes RAM 的型號（如 8052）上存取的是上半部 RAM，而非 SFR（SFR 只能用直接定址存取）。',
+    bitRange:
+      '可位元定址的範圍僅限 20H–2FH（位元定址區）以及位址為 8 的倍數的可位元定址 SFR（例如 PSW、IE、P0–P3）。',
+    acallAjmpPage:
+      'ACALL/AJMP 只能跳到與下一條指令同一個 2KB 頁面內；跨頁需改用 LCALL/LJMP。',
+    relRange:
+      '相對跳轉的位移範圍為 −128~+127（以下一條指令位址為基準），超出範圍組譯會報錯。',
+    reti: 'RETI 與 RET 的差別：RETI 會額外恢復中斷優先權邏輯，讓同優先權的中斷能再次被響應；一般子程式請用 RET。',
+    da: 'DA A 只在 ADD/ADDC 之後、且運算元為 BCD 碼時才有意義，不能接在 SUBB 之後使用。',
+    mul: '乘積超過 255（即高位元組 B 非 0）時設定 OV。',
+    div: '除數（B）為 0 時設定 OV，此時 A、B 的結果無意義。',
+  },
+  ui: {
+    heading: (mo, label) => (label ? `${mo} — 位於 ${label}` : mo),
+    opcodeTableHeader: '| 機器碼 | 長度 | 週期 | 旗標 |\n|---|---|---|---|',
+    operandTableHeader: '| 運算元 | 機器碼 | 長度 | 週期 |\n|---|---|---|---|',
+    flagsLabel: (flags) => `旗標：${flags}`,
+    noMatchIntro: (mnemonic, operandText) =>
+      `_找不到與 \`${operandText}\` 對應的定址模式，以下是 ${mnemonic} 支援的所有形式：_`,
+    noneOperand: '(無)',
+    byteUnit: (bytes) => `${bytes} byte${bytes > 1 ? 's' : ''}`,
+    callPseudoInstruction:
+      'CALL：A51 的虛擬指令，組譯器會依目標位址與目前位置的距離，自動選擇 `ACALL`（同頁內）或 `LCALL`（任意位址），沒有固定的 opcode/長度/週期。',
+  },
+  instructions: {
+    ADD: {
+      description: 'ADD：把運算元加到累加器 A，結果存回 A。',
+      flags: 'Cy, OV, AC',
+      explain: (o) => `把 ${o[1]} 加到累加器 A，結果存回 A。`,
+    },
+    ADDC: {
+      description:
+        'ADDC：把運算元與目前的進位旗標 C 一起加到累加器 A，常用於多位元組加法的高位元組。',
+      flags: 'Cy, OV, AC',
+      explain: (o) =>
+        `把 ${o[1]} 與進位旗標 C 一起加到累加器 A（A ← A + ${o[1]} + Cy）。`,
+    },
+    SUBB: {
+      description:
+        'SUBB：用累加器 A 減去運算元與目前的進位旗標 C，常用於多位元組減法。',
+      flags: 'Cy, OV, AC',
+      explain: (o) => `A ← A − ${o[1]} − Cy（帶借位減法）。`,
+    },
+    INC: {
+      description:
+        'INC：運算元的值加一，不影響任何旗標（INC A 也不影響 OV/Cy）。',
+      flags: '無（INC DPTR 亦不影響旗標）',
+      explain: (o) => `${o[0]} 的值加一。`,
+    },
+    DEC: {
+      description: 'DEC：運算元的值減一，不影響任何旗標。',
+      flags: '無',
+      explain: (o) => `${o[0]} 的值減一。`,
+    },
+    MUL: {
+      description:
+        'MUL AB：把 A 與 B 相乘，16 位元結果的高位元組存回 B、低位元組存回 A。',
+      flags: 'Cy=0, OV（乘積大於 255 時設定）',
+      explain: () =>
+        'A × B，16 位元結果：高位元組存回 B，低位元組存回 A；Cy 固定清為 0，乘積超過 255 時設定 OV。',
+    },
+    DIV: {
+      description: 'DIV AB：A 除以 B，商存回 A、餘數存回 B。',
+      flags: 'Cy=0, OV（除數為 0 時設定）',
+      explain: () =>
+        'A ÷ B：商存回 A，餘數存回 B；Cy 固定清為 0，若 B 為 0 則設定 OV（結果無意義）。',
+    },
+    DA: {
+      description:
+        'DA A：將累加器 A 中的二進位加法結果調整為正確的壓縮 BCD，必須緊接在 ADD/ADDC 之後使用。',
+      flags: 'Cy（可能被設定，不會被清除）',
+      explain: () =>
+        '依 AC/Cy 與 A 的低 4 位元/高 4 位元是否超過 9，對 A 做 BCD 調整（加 06H 與/或 60H）。',
+    },
+    ANL: {
+      description:
+        'ANL：邏輯 AND，可以是 A 與運算元、direct 與 A/立即值，或進位旗標 C 與某個位元。',
+      flags: 'ANL C,bit 形式會改變 Cy；其餘形式不影響旗標',
+      explain: (o) =>
+        o[0] === 'C' || o[0] === '進位旗標 C'
+          ? `把 ${o[1]} 的值 AND 進一步存回進位旗標 C。`
+          : `${o[0]} ← ${o[0]} AND ${o[1]}。`,
+    },
+    ORL: {
+      description:
+        'ORL：邏輯 OR，可以是 A 與運算元、direct 與 A/立即值，或進位旗標 C 與某個位元。',
+      flags: 'ORL C,bit 形式會改變 Cy；其餘形式不影響旗標',
+      explain: (o) =>
+        o[0] === 'C' || o[0] === '進位旗標 C'
+          ? `把 ${o[1]} 的值 OR 進一步存回進位旗標 C。`
+          : `${o[0]} ← ${o[0]} OR ${o[1]}。`,
+    },
+    XRL: {
+      description:
+        'XRL：邏輯 XOR，運算元可以是 A/Rn、A/direct、A/@Ri、A/立即值、direct/A 或 direct/立即值。',
+      flags: '無',
+      explain: (o) => `${o[0]} ← ${o[0]} XOR ${o[1]}。`,
+    },
+    CLR: {
+      description: 'CLR：把累加器 A、進位旗標 C 或某個可定址位元清為 0。',
+      flags: 'CLR C 會清除 Cy；CLR bit 不影響 PSW 旗標',
+      explain: (o) => `把 ${o[0]} 清為 0。`,
+    },
+    CPL: {
+      description: 'CPL：把累加器 A、進位旗標 C 或某個可定址位元逐位元反相。',
+      flags: 'CPL C 會改變 Cy；CPL bit 不影響 PSW 旗標',
+      explain: (o) => `把 ${o[0]} 逐位元反相。`,
+    },
+    SETB: {
+      description: 'SETB：把進位旗標 C 或某個可定址位元設為 1。',
+      flags: 'SETB C 會設定 Cy；SETB bit 不影響 PSW 旗標',
+      explain: (o) => `把 ${o[0]} 設為 1。`,
+    },
+    RL: {
+      description:
+        'RL A：把累加器 A 向左旋轉一個位元（bit7 → bit0），不經過進位旗標。',
+      flags: '無',
+      explain: () =>
+        'A 的每個位元向左移一位，原本的 bit7 直接進到 bit0（不經過 Cy）。',
+    },
+    RLC: {
+      description:
+        'RLC A：把累加器 A 連同進位旗標 C 一起向左旋轉一個位元（A.bit7 → Cy → A.bit0）。',
+      flags: 'Cy',
+      explain: () =>
+        'A 與 Cy 一起向左旋轉：原本的 bit7 進到 Cy，原本的 Cy 進到 bit0。',
+    },
+    RR: {
+      description:
+        'RR A：把累加器 A 向右旋轉一個位元（bit0 → bit7），不經過進位旗標。',
+      flags: '無',
+      explain: () =>
+        'A 的每個位元向右移一位，原本的 bit0 直接進到 bit7（不經過 Cy）。',
+    },
+    RRC: {
+      description:
+        'RRC A：把累加器 A 連同進位旗標 C 一起向右旋轉一個位元（A.bit0 → Cy → A.bit7）。',
+      flags: 'Cy',
+      explain: () =>
+        'A 與 Cy 一起向右旋轉：原本的 bit0 進到 Cy，原本的 Cy 進到 bit7。',
+    },
+    SWAP: {
+      description:
+        'SWAP A：交換累加器 A 的高 4 位元與低 4 位元（半位元組交換）。',
+      flags: '無',
+      explain: () => '把 A 的高 4 位元與低 4 位元互換。',
+    },
+    MOV: {
+      description:
+        'MOV：在暫存器、記憶體位址、立即值之間複製資料，不影響旗標（MOV C,bit 除外，會改變 Cy）。',
+      flags: '無（MOV C,bit 會改變 Cy）',
+      explain: (o) =>
+        o[0] === 'C' || o[0] === '進位旗標 C'
+          ? `把 ${o[1]} 的值複製到進位旗標 C。`
+          : `把 ${o[1]} 的值複製到 ${o[0]}。`,
+    },
+    MOVC: {
+      description:
+        'MOVC：從程式記憶體（Code 空間）查表讀取一個位元組到累加器 A，常用於常數表/查表。',
+      flags: '無',
+      explain: (o) => `查表：從 ${o[1]} 讀出一個位元組，存回累加器 A。`,
+    },
+    MOVX: {
+      description:
+        'MOVX：讀寫外部資料記憶體（XDATA），定址方式為 @Ri（8 位元位址，常搭配 P2 當高位元組）或 @DPTR（16 位元位址）。',
+      flags: '無',
+      explain: (o) =>
+        o[0] === 'A' || o[0] === '累加器 A'
+          ? `從外部資料記憶體 ${o[1]} 讀取一個位元組到累加器 A。`
+          : `把累加器 A 的值寫入外部資料記憶體 ${o[0]}。`,
+    },
+    PUSH: {
+      description:
+        'PUSH：先把堆疊指標 SP 加一，再把運算元的值寫入 SP 所指向的位址。',
+      flags: '無',
+      explain: (o) =>
+        `SP 先加一，再把 ${o[0]} 的值寫入堆疊（SP 所指向的內部 RAM）。`,
+    },
+    POP: {
+      description:
+        'POP：先讀出 SP 所指向的值寫入運算元，再把堆疊指標 SP 減一。',
+      flags: '無',
+      explain: (o) => `從堆疊讀出一個位元組寫入 ${o[0]}，再把 SP 減一。`,
+    },
+    XCH: {
+      description: 'XCH：交換累加器 A 與運算元的內容。',
+      flags: '無',
+      explain: (o) => `交換 ${o[0]} 與 ${o[1]} 的內容。`,
+    },
+    XCHD: {
+      description:
+        'XCHD A,@Ri：只交換 A 與 @Ri 所指向位元組的低 4 位元（高 4 位元不變）。',
+      flags: '無',
+      explain: (o) => `只交換 A 與 ${o[1]} 的低 4 位元，高 4 位元不變。`,
+    },
+    ACALL: {
+      description:
+        'ACALL addr11：絕對呼叫子程式，只能跳到與下一條指令同一個 2KB 頁面內；返回位址（PC）會被壓入堆疊。',
+      flags: '無',
+      explain: (o) =>
+        `把目前 PC（下一條指令位址）壓入堆疊，然後呼叫同一個 2KB 頁面內的 ${o[0]}。`,
+    },
+    LCALL: {
+      description:
+        'LCALL addr16：長呼叫子程式，可跳到 64KB 程式空間內任何位址；返回位址（PC）會被壓入堆疊。',
+      flags: '無',
+      explain: (o) => `把目前 PC（下一條指令位址）壓入堆疊，然後呼叫 ${o[0]}。`,
+    },
+    RET: {
+      description: 'RET：從子程式返回，把堆疊頂端的兩個位元組彈出並存回 PC。',
+      flags: '無',
+      explain: () =>
+        '從堆疊彈出返回位址（2 bytes）存回 PC，繼續執行呼叫端之後的指令。',
+    },
+    RETI: {
+      description:
+        'RETI：從中斷服務常式（ISR）返回，除了彈出返回位址，還會恢復中斷優先權邏輯，允許同優先權的中斷再次被響應。',
+      flags: '無',
+      explain: () =>
+        '從堆疊彈出返回位址存回 PC，並清除「正在處理中斷」狀態，允許同優先權的中斷再次觸發。',
+    },
+    AJMP: {
+      description:
+        'AJMP addr11：絕對跳轉，只能跳到與下一條指令同一個 2KB 頁面內。',
+      flags: '無',
+      explain: (o) => `跳到同一個 2KB 頁面內的 ${o[0]}。`,
+    },
+    LJMP: {
+      description: 'LJMP addr16：長跳轉，可跳到 64KB 程式空間內任何位址。',
+      flags: '無',
+      explain: (o) => `跳到 ${o[0]}。`,
+    },
+    SJMP: {
+      description:
+        'SJMP rel：相對跳轉，位移範圍 −128~+127（以下一條指令位址為基準）。',
+      flags: '無',
+      explain: (o) => `相對跳轉到 ${o[0]}（位移需落在 −128~+127 範圍內）。`,
+    },
+    JMP: {
+      description:
+        'JMP @A+DPTR：以 A 當位移、DPTR 當基底的間接跳轉，常用來實作跳轉表。',
+      flags: '無',
+      explain: () => '跳到 A + DPTR 所指向的位址（常見於 switch/跳轉表實作）。',
+    },
+    JZ: {
+      description: 'JZ rel：若累加器 A 為 0 則相對跳轉。',
+      flags: '無',
+      explain: (o) => `若 A 等於 0，跳到 ${o[0]}。`,
+    },
+    JNZ: {
+      description: 'JNZ rel：若累加器 A 不為 0 則相對跳轉。',
+      flags: '無',
+      explain: (o) => `若 A 不等於 0，跳到 ${o[0]}。`,
+    },
+    JC: {
+      description: 'JC rel：若進位旗標 C 為 1 則相對跳轉。',
+      flags: '無',
+      explain: (o) => `若 Cy = 1，跳到 ${o[0]}。`,
+    },
+    JNC: {
+      description: 'JNC rel：若進位旗標 C 為 0 則相對跳轉。',
+      flags: '無',
+      explain: (o) => `若 Cy = 0，跳到 ${o[0]}。`,
+    },
+    JB: {
+      description: 'JB bit,rel：若指定的可定址位元為 1 則相對跳轉。',
+      flags: '無',
+      explain: (o) => `若 ${o[0]} = 1，跳到 ${o[1]}。`,
+    },
+    JNB: {
+      description: 'JNB bit,rel：若指定的可定址位元為 0 則相對跳轉。',
+      flags: '無',
+      explain: (o) => `若 ${o[0]} = 0，跳到 ${o[1]}。`,
+    },
+    JBC: {
+      description:
+        'JBC bit,rel：若指定的可定址位元為 1 則跳轉，並在跳轉前把該位元清為 0。',
+      flags: '無',
+      explain: (o) => `若 ${o[0]} = 1，先清除該位元再跳到 ${o[1]}。`,
+    },
+    CJNE: {
+      description:
+        'CJNE：比較兩個運算元，不相等則相對跳轉；同時依比較結果設定進位旗標 C（第一運算元 < 第二運算元時 Cy=1）。',
+      flags: 'Cy',
+      explain: (o) =>
+        `比較 ${o[0]} 與 ${o[1]}，不相等則跳到 ${o[2]}；若 ${o[0]} < ${o[1]} 則設定 Cy。`,
+    },
+    DJNZ: {
+      description:
+        'DJNZ：運算元先減一，結果不為 0 則相對跳轉，常用來實作迴圈計數。',
+      flags: '無',
+      explain: (o) => `${o[0]} 先減一，若結果不為 0 則跳到 ${o[1]}。`,
+    },
+    NOP: {
+      description:
+        'NOP：不做任何事，只消耗一個機器週期，常用於精確延時或對齊。',
+      flags: '無',
+      explain: () => '不執行任何動作，僅消耗 1 個機器週期。',
+    },
+  },
+};

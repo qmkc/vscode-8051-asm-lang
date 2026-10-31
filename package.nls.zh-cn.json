@@ -1,0 +1,14 @@
+{
+  "a51.configuration.title": "8051 汇编语言 (A51)",
+  "a51.format.mnemonicColumn.description": "助记符／指示符开始的列。",
+  "a51.format.operandColumn.description": "操作数列开始的列。",
+  "a51.format.commentColumn.description": "行尾注释开始的列。",
+  "a51.format.indentStyle.description": "用来对齐到各列的空白字符。",
+  "a51.format.tabSize.description": "当 indentStyle 为“tabs”时使用的 tab 宽度。",
+  "a51.format.longLabelStyle.description": "标签长度超过助记符列时的处理方式：把指令放到下一行（'newline'），或是留一个空格接在同一行（'sameLine'）。",
+  "a51.format.caseStyle.description": "助记符、指示符与已知寄存器的大小写规范化。用户自定义的标签／符号名称永远不会被改动。",
+  "a51.format.commaSpacing.description": "是否把操作数列表规范化为逗号后固定一个空格。",
+  "a51.format.semicolonSpacing.description": "是否把行尾注释规范化为分号后固定一个空格。",
+  "a51.format.indentMacroBody.description": "在 MACRO/ENDM、IF/ENDIF、REPT/ENDM、WHILE/ENDW 代码块内多缩进一层。",
+  "a51.format.maxBlankLines.description": "最多保留的连续空行数。"
+}

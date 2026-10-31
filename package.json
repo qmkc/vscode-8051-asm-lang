@@ -1,0 +1,172 @@
+{
+  "name": "8051-asm-lang",
+  "displayName": "8051 Assembly (A51)",
+  "description": "Syntax highlighting, formatting, diagnostics, hover reference, and IntelliSense for 8051 (MCS-51) A51 assembly.",
+  "version": "0.0.1",
+  "license": "MIT",
+  "publisher": "qmkc",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/qmkc/vscode-8051-asm-lang.git"
+  },
+  "bugs": {
+    "url": "https://github.com/qmkc/vscode-8051-asm-lang/issues"
+  },
+  "homepage": "https://github.com/qmkc/vscode-8051-asm-lang#readme",
+  "keywords": [
+    "8051",
+    "mcs-51",
+    "a51",
+    "assembly",
+    "keil",
+    "microcontroller"
+  ],
+  "engines": {
+    "vscode": "^1.144.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "scripts": {
+    "vscode:prepublish": "pnpm run package",
+    "build:grammar": "node scripts/build-grammar.js",
+    "compile": "pnpm run build:grammar && pnpm run check-types && pnpm run lint && node esbuild.js",
+    "watch": "npm-run-all -p watch:*",
+    "watch:esbuild": "node esbuild.js --watch",
+    "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
+    "watch:grammar": "node scripts/watch-grammar.js",
+    "package": "pnpm run build:grammar && pnpm run check-types && pnpm run lint && node esbuild.js --production",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "pnpm run compile-tests && pnpm run compile && pnpm run lint",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "activationEvents": [],
+  "main": "./dist/extension.js",
+  "l10n": "./l10n",
+  "contributes": {
+    "languages": [
+      {
+        "id": "a51",
+        "aliases": [
+          "8051 Assembly (A51)",
+          "a51"
+        ],
+        "extensions": [
+          ".asm",
+          ".a51"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "a51",
+        "scopeName": "source.a51",
+        "path": "./syntaxes/a51.tmLanguage.json"
+      }
+    ],
+    "configuration": {
+      "title": "%a51.configuration.title%",
+      "properties": {
+        "a51.format.mnemonicColumn": {
+          "type": "number",
+          "default": 8,
+          "description": "%a51.format.mnemonicColumn.description%"
+        },
+        "a51.format.operandColumn": {
+          "type": "number",
+          "default": 16,
+          "description": "%a51.format.operandColumn.description%"
+        },
+        "a51.format.commentColumn": {
+          "type": "number",
+          "default": 40,
+          "description": "%a51.format.commentColumn.description%"
+        },
+        "a51.format.indentStyle": {
+          "type": "string",
+          "enum": [
+            "spaces",
+            "tabs"
+          ],
+          "default": "spaces",
+          "description": "%a51.format.indentStyle.description%"
+        },
+        "a51.format.tabSize": {
+          "type": "number",
+          "default": 8,
+          "description": "%a51.format.tabSize.description%"
+        },
+        "a51.format.longLabelStyle": {
+          "type": "string",
+          "enum": [
+            "newline",
+            "sameLine"
+          ],
+          "default": "newline",
+          "description": "%a51.format.longLabelStyle.description%"
+        },
+        "a51.format.caseStyle": {
+          "type": "string",
+          "enum": [
+            "preserve",
+            "upper",
+            "lower"
+          ],
+          "default": "preserve",
+          "description": "%a51.format.caseStyle.description%"
+        },
+        "a51.format.commaSpacing": {
+          "type": "string",
+          "enum": [
+            "preserve",
+            "space"
+          ],
+          "default": "preserve",
+          "description": "%a51.format.commaSpacing.description%"
+        },
+        "a51.format.semicolonSpacing": {
+          "type": "string",
+          "enum": [
+            "preserve",
+            "space"
+          ],
+          "default": "preserve",
+          "description": "%a51.format.semicolonSpacing.description%"
+        },
+        "a51.format.indentMacroBody": {
+          "type": "boolean",
+          "default": false,
+          "description": "%a51.format.indentMacroBody.description%"
+        },
+        "a51.format.maxBlankLines": {
+          "type": "number",
+          "default": 1,
+          "minimum": 0,
+          "description": "%a51.format.maxBlankLines.description%"
+        }
+      }
+    }
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "24.x",
+    "@types/vscode": "^1.144.0",
+    "@vscode/test-cli": "^0.0.15",
+    "@vscode/test-electron": "^3.0.0",
+    "esbuild": "^0.28.1",
+    "eslint": "^10.5.0",
+    "js-yaml": "^5.5.0",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.61.1"
+  },
+  "overrides": {
+    "diff": "^8.0.4",
+    "serialize-javascript": "^7.0.6"
+  }
+}

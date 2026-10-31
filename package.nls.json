@@ -1,0 +1,14 @@
+{
+  "a51.configuration.title": "8051 Assembly (A51)",
+  "a51.format.mnemonicColumn.description": "Column where the mnemonic/directive starts.",
+  "a51.format.operandColumn.description": "Column where the operand field starts.",
+  "a51.format.commentColumn.description": "Column where trailing line comments start.",
+  "a51.format.indentStyle.description": "Whitespace character used to reach each column.",
+  "a51.format.tabSize.description": "Tab stop width used when indentStyle is 'tabs'.",
+  "a51.format.longLabelStyle.description": "How to handle a label too long to fit before the mnemonic column: put the instruction on its own following line ('newline'), or keep it on the same line separated by a single space ('sameLine').",
+  "a51.format.caseStyle.description": "Case normalization for mnemonics, directives, and known registers. User-defined label/symbol names are never changed.",
+  "a51.format.commaSpacing.description": "Whether to normalize operand lists to have exactly one space after each comma.",
+  "a51.format.semicolonSpacing.description": "Whether to normalize trailing comments to have exactly one space after ';'.",
+  "a51.format.indentMacroBody.description": "Indent one extra level inside MACRO/ENDM, IF/ENDIF, REPT/ENDM, and WHILE/ENDW blocks.",
+  "a51.format.maxBlankLines.description": "Maximum number of consecutive blank lines to keep."
+}

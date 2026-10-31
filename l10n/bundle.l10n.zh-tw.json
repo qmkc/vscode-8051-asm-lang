@@ -1,0 +1,13 @@
+{
+  "Cannot find a definition for label '{0}'.": "找不到標籤 '{0}' 的定義。",
+  "Indirect addressing '{0}' is invalid - only @R0 and @R1 are addressable.": "間接定址 '{0}' 不合法——只有 @R0 和 @R1 可定址。",
+  "Unknown instruction or directive '{0}'.": "未知的指令或偽指令 '{0}'。",
+  "'{0}' expects {1} operand(s), found {2}.": "'{0}' 需要 {1} 個運算元，但找到 {2} 個。",
+  "'ENDIF' without matching 'IF'.": "'ENDIF' 沒有對應的 'IF'。",
+  "'ENDM' without matching 'MACRO' or 'REPT'.": "'ENDM' 沒有對應的 'MACRO' 或 'REPT'。",
+  "'ENDW' without matching 'WHILE'.": "'ENDW' 沒有對應的 'WHILE'。",
+  "'{0}' block is never closed.": "'{0}' 區塊未結束。",
+  "Symbol '{0}' is defined more than once.": "符號 '{0}' 被重複定義。",
+  "{0} - {1} operand(s)": "{0} — {1} 個運算元",
+  "{0} - defined at line {1}": "{0} — 定義於第 {1} 行"
+}

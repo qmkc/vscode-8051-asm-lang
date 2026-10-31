@@ -1,0 +1,7 @@
+out
+dist
+node_modules
+.vscode-test/
+*.vsix
+# Generated from syntaxes/a51.tmLanguage.yaml by `pnpm run build:grammar`.
+syntaxes/a51.tmLanguage.json

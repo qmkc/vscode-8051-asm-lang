@@ -1,0 +1,14 @@
+{
+  "a51.configuration.title": "8051 組合語言 (A51)",
+  "a51.format.mnemonicColumn.description": "助記符／指示詞開始的欄位。",
+  "a51.format.operandColumn.description": "運算元欄位開始的欄位。",
+  "a51.format.commentColumn.description": "行尾註解開始的欄位。",
+  "a51.format.indentStyle.description": "用來對齊到各欄位的空白字元。",
+  "a51.format.tabSize.description": "當 indentStyle 為「tabs」時使用的 tab 寬度。",
+  "a51.format.longLabelStyle.description": "標籤長度超過助記符欄位時的處理方式：把指令放到下一行（'newline'），或是留一個空格接在同一行（'sameLine'）。",
+  "a51.format.caseStyle.description": "助記符、指示詞與已知暫存器的大小寫正規化。使用者自訂的標籤／符號名稱永遠不會被改動。",
+  "a51.format.commaSpacing.description": "是否把運算元列表正規化為逗號後固定一個空格。",
+  "a51.format.semicolonSpacing.description": "是否把行尾註解正規化為分號後固定一個空格。",
+  "a51.format.indentMacroBody.description": "在 MACRO/ENDM、IF/ENDIF、REPT/ENDM、WHILE/ENDW 區塊內多縮排一層。",
+  "a51.format.maxBlankLines.description": "最多保留的連續空行數。"
+}
