@@ -8,13 +8,20 @@ import {
 } from '../providers/codeActionProvider';
 import { DIAGNOSTIC_RULES } from '../providers/diagnostics';
 
-/** A minimal fake TextDocument - the provider only ever touches uri and lineAt(line).text. */
+/** A minimal fake TextDocument - the provider only ever touches uri, lineAt(line).text, and getText(range) for a single-line range. */
 function fakeDocument(text: string): vscode.TextDocument {
   const lines = text.split('\n');
   return {
     uri: vscode.Uri.file('/fake/test.a51'),
     lineCount: lines.length,
     lineAt: (line: number) => ({ text: lines[line] }) as vscode.TextLine,
+    getText: (range?: vscode.Range) =>
+      range
+        ? lines[range.start.line].slice(
+            range.start.character,
+            range.end.character,
+          )
+        : lines.join('\n'),
   } as unknown as vscode.TextDocument;
 }
 

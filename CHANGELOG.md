@@ -2,7 +2,7 @@
 
 All notable changes to the "8051 Assembly (A51)" extension will be documented in this file.
 
-## [0.1.0]
+## [0.1.1]
 
 - Diagnostics can now be disabled entirely (`a51.diagnostics.enable`), have their severity overridden or turned off by rule code everywhere (`a51.diagnostics.severity`, e.g. `{ "AS001": "off" }`; codes are prefixed `AS`/`AM` for syntax/semantic rules), or be suppressed for a single line with an `a51-disable-line`/`a51-disable-next-line` comment — useful for extended dialects (e.g. MCS-251/A251) whose instructions this checker doesn't recognize
 - Quick fixes for each diagnostic: skip the line, disable the rule for this user, or disable it for this workspace

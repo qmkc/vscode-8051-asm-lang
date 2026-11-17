@@ -2,7 +2,7 @@
   "name": "8051-asm-lang",
   "displayName": "8051 Assembly (A51)",
   "description": "Syntax highlighting, formatting, diagnostics, hover reference, and IntelliSense for 8051 (MCS-51) A51 assembly.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "license": "MIT",
   "publisher": "qmkc",
