@@ -9,5 +9,12 @@
   "'{0}' block is never closed.": "'{0}' 代码块未结束。",
   "Symbol '{0}' is defined more than once.": "符号 '{0}' 被重复定义。",
   "{0} - {1} operand(s)": "{0} — {1} 个操作数",
-  "{0} - defined at line {1}": "{0} — 定义于第 {1} 行"
+  "{0} - defined at line {1}": "{0} — 定义于第 {1} 行",
+  "Skip this line ({0})": "跳过这一行（{0}）",
+  "Disable this rule ({0})": "关闭此规则（{0}）",
+  "Disable this rule for this workspace ({0})": "在此工作区关闭此规则（{0}）",
+  "Change to '{0}'": "改成 '{0}'",
+  "Nothing to rename here.": "这里没有可以重命名的东西。",
+  "Only a label, constant (EQU/SET/BIT/.../SEGMENT), or macro defined in this file can be renamed.": "只有本文件中定义的标签、常量（EQU/SET/BIT/.../SEGMENT）或宏可以重命名。",
+  "'{0}' is not a valid A51 symbol name.": "'{0}' 不是合法的 A51 符号名称。"
 }

@@ -100,7 +100,10 @@ suite('catalogEngine: buildCatalog', () => {
 
   test('ui.heading picks the with/without-label template', () => {
     const catalog = buildCatalog('en', minimalData());
-    assert.strictEqual(catalog.ui.heading('MOV A,R0', 'LOOP'), 'MOV A,R0 in LOOP');
+    assert.strictEqual(
+      catalog.ui.heading('MOV A,R0', 'LOOP'),
+      'MOV A,R0 in LOOP',
+    );
     assert.strictEqual(catalog.ui.heading('MOV A,R0', undefined), 'MOV A,R0');
   });
 

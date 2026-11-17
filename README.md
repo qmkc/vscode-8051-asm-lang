@@ -43,7 +43,35 @@ Lightweight, real-time checks as you type:
 
 Like formatting, diagnostics stop at a top-level `END` — nothing after it is real code, so nothing after it is checked.
 
-This is a lightweight checker, not a full assembler: it won't catch every semantic error a real A51 build would, and it does not assemble or simulate your code.
+This is a lightweight checker, not a full assembler: it won't catch every semantic error a real A51 build would, and it does not assemble or simulate your code. It also only knows the standard MCS-51 instruction set, so code written for an extended dialect (e.g. MCS-251/A251) will be flagged as unknown instructions — turn those rules off instead of fighting the false positives.
+
+#### Suppressing diagnostics
+
+Each diagnostic carries a rule code. The prefix groups rules by what they need to detect the problem: `AS` (syntax) is detectable from a single line's tokens/structure alone; `AM` (semantic) needs the symbol table or an instruction's known operand/addressing rules.
+
+| Code    | Rule                  | Default severity | Meaning                                                            |
+| ------- | --------------------- | ---------------- | ------------------------------------------------------------------ |
+| `AS001` | `unknown-instruction` | Warning          | Unknown instruction or directive                                   |
+| `AS002` | `unmatched-end`       | Error            | `ENDIF`/`ENDM`/`ENDW` without a matching opening block             |
+| `AS003` | `unclosed-block`      | Error            | `MACRO`/`IF`/`REPT`/`WHILE` block never closed                     |
+| `AM001` | `operand-count`       | Warning          | Wrong number of operands for a known instruction                   |
+| `AM002` | `invalid-indirect`    | Error            | `@R2`-`@R7` indirect addressing (only `@R0`/`@R1` are addressable) |
+| `AM003` | `unresolved-label`    | Warning          | Branch/call target with no matching label definition               |
+| `AM004` | `duplicate-symbol`    | Error            | A symbol defined more than once                                    |
+
+- Turn off all diagnostics with `a51.diagnostics.enable: false`.
+- Override a rule's severity (or turn it off) everywhere with `a51.diagnostics.severity`, e.g. `{ "AS001": "off", "AM002": "error" }`.
+- Turn off diagnostics for a single line with a `; a51-disable-line` or `; a51-disable-next-line` comment, optionally followed by one or more codes to limit it to those rules:
+
+```asm
+        EJMP    FAR_LABEL               ; a51-disable-line AS001
+        ; a51-disable-next-line AS001, AM001
+        EMOV    DPTR1, #TABLE
+```
+
+With no codes, the comment suppresses every diagnostic on that line.
+
+A quick fix (💡) is also offered on each diagnostic: skip just that line, disable the rule for this user, or disable it for this workspace. An `unknown-instruction` (`AS001`) diagnostic also offers "Change to '...'" fixes for close typos (e.g. `ALCALL` → `ACALL`/`LCALL`), ranked closest-match first.
 
 ### Hover reference
 
@@ -70,6 +98,7 @@ Hovering `LOOP` here — on its definition or on the `SJMP LOOP` reference — s
 - Auto-completion for instructions, directives, registers, and every symbol defined in the current file
 - Go to Definition for labels, constants, and macros
 - Find All References
+- Rename Symbol for labels, constants, and macros (renames the definition and every reference)
 - Outline / breadcrumbs (document symbols) for labels, constants, and macros
 - Code folding for `MACRO`/`IF`/`REPT`/`WHILE` blocks
 
@@ -100,6 +129,8 @@ None — this extension only provides editor tooling (highlighting, formatting, 
 | `a51.format.semicolonSpacing` | `preserve` | Whether to normalize trailing comments to have exactly one space after `;` (`preserve` or `space`).                                                                                                |
 | `a51.format.indentMacroBody`  | `false`    | Indent one extra level inside `MACRO`/`ENDM`, `IF`/`ENDIF`, `REPT`/`ENDM`, and `WHILE`/`ENDW` blocks.                                                                                              |
 | `a51.format.maxBlankLines`    | `1`        | Maximum number of consecutive blank lines to keep.                                                                                                                                                 |
+| `a51.diagnostics.enable`      | `true`     | Enable diagnostics (syntax highlighting, formatting, and IntelliSense are unaffected).                                                                                                             |
+| `a51.diagnostics.severity`    | `{}`       | Per-rule severity override (`"error"`, `"warning"`, or `"off"`), by code. See [Suppressing diagnostics](#suppressing-diagnostics) for the full list and per-line comment suppression.              |
 
 ## Known Issues
 

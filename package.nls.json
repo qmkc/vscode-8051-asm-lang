@@ -10,5 +10,7 @@
   "a51.format.commaSpacing.description": "Whether to normalize operand lists to have exactly one space after each comma.",
   "a51.format.semicolonSpacing.description": "Whether to normalize trailing comments to have exactly one space after ';'.",
   "a51.format.indentMacroBody.description": "Indent one extra level inside MACRO/ENDM, IF/ENDIF, REPT/ENDM, and WHILE/ENDW blocks.",
-  "a51.format.maxBlankLines.description": "Maximum number of consecutive blank lines to keep."
+  "a51.format.maxBlankLines.description": "Maximum number of consecutive blank lines to keep.",
+  "a51.diagnostics.enable.description": "Enable diagnostics (syntax highlighting, formatting, and IntelliSense are unaffected). Disable this if diagnostics produce too many false positives for your dialect/target.",
+  "a51.diagnostics.severity.description": "Per-rule severity override, by code: 'error', 'warning', or 'off' (never report). Syntax (AS): AS001 unknown-instruction, AS002 unmatched-end, AS003 unclosed-block. Semantic (AM): AM001 operand-count, AM002 invalid-indirect, AM003 unresolved-label, AM004 duplicate-symbol. Unlisted rules keep their built-in default severity. For a single line, use an 'a51-disable-line' or 'a51-disable-next-line' comment instead."
 }

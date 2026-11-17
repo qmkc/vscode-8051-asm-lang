@@ -2,7 +2,7 @@
   "name": "8051-asm-lang",
   "displayName": "8051 Assembly (A51)",
   "description": "Syntax highlighting, formatting, diagnostics, hover reference, and IntelliSense for 8051 (MCS-51) A51 assembly.",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "private": true,
   "license": "MIT",
   "publisher": "qmkc",
@@ -161,6 +161,54 @@
           "default": 1,
           "minimum": 0,
           "description": "%a51.format.maxBlankLines.description%"
+        },
+        "a51.diagnostics.enable": {
+          "type": "boolean",
+          "default": true,
+          "description": "%a51.diagnostics.enable.description%"
+        },
+        "a51.diagnostics.severity": {
+          "type": "object",
+          "default": {},
+          "properties": {
+            "AS001": {
+              "type": "string",
+              "enum": ["error", "warning", "off"],
+              "description": "unknown-instruction"
+            },
+            "AS002": {
+              "type": "string",
+              "enum": ["error", "warning", "off"],
+              "description": "unmatched-end"
+            },
+            "AS003": {
+              "type": "string",
+              "enum": ["error", "warning", "off"],
+              "description": "unclosed-block"
+            },
+            "AM001": {
+              "type": "string",
+              "enum": ["error", "warning", "off"],
+              "description": "operand-count"
+            },
+            "AM002": {
+              "type": "string",
+              "enum": ["error", "warning", "off"],
+              "description": "invalid-indirect"
+            },
+            "AM003": {
+              "type": "string",
+              "enum": ["error", "warning", "off"],
+              "description": "unresolved-label"
+            },
+            "AM004": {
+              "type": "string",
+              "enum": ["error", "warning", "off"],
+              "description": "duplicate-symbol"
+            }
+          },
+          "additionalProperties": false,
+          "description": "%a51.diagnostics.severity.description%"
         }
       }
     }

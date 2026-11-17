@@ -10,5 +10,7 @@
   "a51.format.commaSpacing.description": "是否把操作数列表规范化为逗号后固定一个空格。",
   "a51.format.semicolonSpacing.description": "是否把行尾注释规范化为分号后固定一个空格。",
   "a51.format.indentMacroBody.description": "在 MACRO/ENDM、IF/ENDIF、REPT/ENDM、WHILE/ENDW 代码块内多缩进一层。",
-  "a51.format.maxBlankLines.description": "最多保留的连续空行数。"
+  "a51.format.maxBlankLines.description": "最多保留的连续空行数。",
+  "a51.diagnostics.enable.description": "启用诊断（不影响语法高亮、格式化和智能感知）。如果诊断对你的方言/目标芯片产生过多误报，可以关闭此项。",
+  "a51.diagnostics.severity.description": "按规则代码覆盖严重性：'error'、'warning' 或 'off'（永不报告）。语法类（AS）：AS001 unknown-instruction、AS002 unmatched-end、AS003 unclosed-block。语义类（AM）：AM001 operand-count、AM002 invalid-indirect、AM003 unresolved-label、AM004 duplicate-symbol。未列出的规则维持内建的预设严重性。若只想关闭某一行，请改用 'a51-disable-line' 或 'a51-disable-next-line' 注释。"
 }

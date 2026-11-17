@@ -7,8 +7,36 @@ import {
   splitCodeAndComment,
 } from '../language/parsing';
 
-const WORD_RE = /[A-Za-z_?][A-Za-z0-9_?]*/;
+export const WORD_RE = /[A-Za-z_?][A-Za-z0-9_?]*/;
 const IDENT_RE = /[A-Za-z_?][A-Za-z0-9_?]*/g;
+
+/** Every occurrence of `word` (case-insensitive) up to the top-level `END`, as ranges - shared by Find All References and Rename. */
+export function findOccurrences(
+  document: vscode.TextDocument,
+  word: string,
+): vscode.Range[] {
+  const lines: string[] = [];
+  for (let line = 0; line < document.lineCount; line++) {
+    lines.push(document.lineAt(line).text);
+  }
+  // A51 stops assembling at a top-level END - nothing after it is a real reference.
+  const endIdx = findEndLineIndex(lines);
+  const lastLine = endIdx === -1 ? lines.length - 1 : endIdx;
+
+  const ranges: vscode.Range[] = [];
+  for (let line = 0; line <= lastLine; line++) {
+    const { code } = splitCodeAndComment(lines[line]);
+    const scanText = maskStringLiterals(code);
+    for (const match of scanText.matchAll(IDENT_RE)) {
+      if (match[0].toUpperCase() !== word) {
+        continue;
+      }
+      const start = match.index ?? 0;
+      ranges.push(new vscode.Range(line, start, line, start + match[0].length));
+    }
+  }
+  return ranges;
+}
 
 export class A51ReferenceProvider implements vscode.ReferenceProvider {
   provideReferences(
@@ -27,31 +55,9 @@ export class A51ReferenceProvider implements vscode.ReferenceProvider {
       return undefined;
     }
 
-    const lines: string[] = [];
-    for (let line = 0; line < document.lineCount; line++) {
-      lines.push(document.lineAt(line).text);
-    }
-    // A51 stops assembling at a top-level END - nothing after it is a real reference.
-    const endIdx = findEndLineIndex(lines);
-    const lastLine = endIdx === -1 ? lines.length - 1 : endIdx;
-
-    const locations: vscode.Location[] = [];
-    for (let line = 0; line <= lastLine; line++) {
-      const { code } = splitCodeAndComment(lines[line]);
-      const scanText = maskStringLiterals(code);
-      for (const match of scanText.matchAll(IDENT_RE)) {
-        if (match[0].toUpperCase() !== word) {
-          continue;
-        }
-        const start = match.index ?? 0;
-        locations.push(
-          new vscode.Location(
-            document.uri,
-            new vscode.Range(line, start, line, start + match[0].length),
-          ),
-        );
-      }
-    }
+    const locations = findOccurrences(document, word).map(
+      (range) => new vscode.Location(document.uri, range),
+    );
 
     if (context.includeDeclaration) {
       return locations;
